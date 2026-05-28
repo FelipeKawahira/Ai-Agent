@@ -1,6 +1,8 @@
 import os
 from config import CHAR_LIMIT
+from google.genai import types
 
+# Actual function
 def get_file_content(working_directory: str, file_path: str) -> str:
     try:
         abspath = os.path.abspath(working_directory)
@@ -21,3 +23,18 @@ def get_file_content(working_directory: str, file_path: str) -> str:
             return file_content
     except Exception as e:
         return f"Error: {e}" 
+
+# Describe function to LLM
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
+    description="Returns the contents of the target file, with a 10000 character limit",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="Path to the file, relative to the working directory",
+            ),
+        },
+    ),
+)

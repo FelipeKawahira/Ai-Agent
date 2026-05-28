@@ -1,6 +1,8 @@
 import os
 import subprocess
+from google.genai import types
 
+# Actual function
 def run_python_file(
     working_directory: str, file_path: str, args: list[str] | None = None
 ) -> str:
@@ -34,3 +36,23 @@ def run_python_file(
 
     except Exception as e:
         return f"Error: executing Python file: {e}"     
+
+# Describe function to LLM
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Runs a .py file relative to the working directory",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="Path to the file, relative to the working directory",
+            ),
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                items=types.Schema(type=types.Type.STRING),
+                description="Optional list of strings to be added to the command list",
+            )
+        },
+    ),
+)
