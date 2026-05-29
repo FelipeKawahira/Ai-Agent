@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from prompts import system_prompt
-from call_function import available_functions
+from call_function import available_functions, call_function
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -38,5 +38,16 @@ if args.verbose:
 if not response.function_calls:
     print(response.text)
 else:
+    function_results_list = []
     for function_call in response.function_calls:
-        print(f"Calling function: {function_call.name}({function_call.args})")
+        function_call_result = call_function(function_call, args.verbose)
+        if not function_call_result.parts: 
+            raise Exception("Error: parts list empty")
+        if function_call_result.parts[0].function_response is None:
+            raise Exception("Error: .parts[0].function_response property can't be None")
+        if function_call_result.parts[0].function_response.response is None:
+            raise Exception("Error: .parts[0].function_response.response property can't be None")
+        function_results_list.append(function_call_result.parts[0])
+
+        if args.verbose:
+            print(f"-> {function_call_result.parts[0].function_response.response}")
